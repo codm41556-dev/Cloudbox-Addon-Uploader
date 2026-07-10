@@ -197,6 +197,7 @@ bytes returned:
 - The forecaster `/browse/addons` page, including the new upload banner
   link and that the uploaded package shows up in the list
 - `go build` and `go vet` clean on both Go repos
+- Added icon upload (aka when you go to the cloudbox tab you will see your own image in that tab)
 
 **Reviewed and syntax-checked, but not run** (no GMod client available
 here):
