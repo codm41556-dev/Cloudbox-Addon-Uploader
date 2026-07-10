@@ -1,0 +1,372 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Upload an Addon - Cloudbox</title>
+		<style>
+			body {
+				background-color: #222;
+				margin: 0;
+				padding: 25px;
+				font-family: Helvetica, Arial, sans-serif;
+				color: #333;
+			}
+
+			#container {
+				max-width: 560px;
+				margin: 0 auto;
+				background-color: #fff;
+				border-radius: 8px;
+				padding: 25px 30px 30px;
+			}
+
+			h2 {
+				margin-top: 0;
+			}
+
+			p.sub {
+				font-size: 13px;
+				color: #666;
+				margin-top: -8px;
+			}
+
+			.row {
+				margin-top: 14px;
+			}
+
+			label {
+				display: block;
+				font-size: 12px;
+				font-weight: bold;
+				margin-bottom: 4px;
+			}
+
+			input[type="text"], textarea, input[type="file"] {
+				width: 100%;
+				box-sizing: border-box;
+				padding: 6px 8px;
+				border: 2px solid #aaa;
+				border-radius: 3px;
+				background-color: #fafafa;
+				font-size: 13px;
+				font-family: inherit;
+			}
+
+			textarea {
+				min-height: 70px;
+				resize: vertical;
+			}
+
+			input:focus, textarea:focus {
+				background-color: #ffa;
+				border-color: #fb9;
+				outline: none;
+			}
+
+			button {
+				margin-top: 18px;
+				padding: 8px 22px;
+				font-size: 15px;
+				font-weight: bold;
+				border-radius: 4px;
+				border: none;
+				cursor: pointer;
+			}
+
+			.steambtn {
+				background-color: #1b2838;
+				color: #fff;
+			}
+
+			.uploadbtn {
+				background-color: #4096ee;
+				color: #fff;
+			}
+
+			.uploadbtn:disabled {
+				background-color: #aaa;
+				cursor: not-allowed;
+			}
+
+			#signedin {
+				font-size: 13px;
+				background: #eef6e8;
+				border: 1px solid #cde6bd;
+				border-radius: 4px;
+				padding: 8px 10px;
+				margin-bottom: 14px;
+			}
+
+			#result {
+				margin-top: 18px;
+				font-size: 13px;
+				white-space: pre-wrap;
+				word-break: break-word;
+			}
+
+			#result.error {
+				color: #a33;
+			}
+
+			#result.ok {
+				color: #276b27;
+			}
+
+			ul.filelist {
+				max-height: 160px;
+				overflow-y: auto;
+				margin: 6px 0 0;
+				padding-left: 18px;
+				font-size: 12px;
+			}
+
+			code {
+				background: #f2f2f2;
+				padding: 1px 5px;
+				border-radius: 3px;
+			}
+
+			#myuploads-section {
+				margin-top: 26px;
+				padding-top: 18px;
+				border-top: 1px solid #eee;
+			}
+
+			.uploaditem {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				padding: 7px 10px;
+				border: 1px solid #ddd;
+				border-radius: 4px;
+				margin-top: 6px;
+				font-size: 13px;
+			}
+
+			.uploaditem .meta {
+				color: #888;
+				font-size: 11px;
+			}
+
+			.deletebtn {
+				background: #d9534f;
+				color: #fff;
+				border: none;
+				border-radius: 3px;
+				padding: 5px 12px;
+				font-size: 12px;
+				font-weight: normal;
+				margin: 0;
+				cursor: pointer;
+			}
+
+			.deletebtn:hover {
+				background: #c9302c;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="container">
+			<h2>Upload an Addon</h2>
+			<p class="sub">Zip your addon folder (containing any of <code>lua/</code>, <code>materials/</code>, <code>models/</code>, <code>sound/</code>, <code>particles/</code>, <code>gamemodes/</code>) and upload it here. It becomes a normal Cloudbox package that anyone running the Cloudbox client can download and mount in-game - autorun scripts, entities, weapons and effects get loaded automatically.</p>
+
+			<div id="loggedout">
+				<button class="steambtn" onclick="signIn()">Sign in through Steam</button>
+			</div>
+
+			<div id="loggedin" style="display:none;">
+				<div id="signedin"></div>
+
+				<form id="uploadform">
+					<div class="row">
+						<label for="name">Name</label>
+						<input type="text" id="name" name="name" maxlength="128" required placeholder="My Cool Addon">
+					</div>
+					<div class="row">
+						<label for="description">Description</label>
+						<textarea id="description" name="description" maxlength="2000" placeholder="What does it do?"></textarea>
+					</div>
+					<div class="row">
+						<label for="file">Addon .zip</label>
+						<input type="file" id="file" name="file" accept=".zip" required>
+					</div>
+					<button class="uploadbtn" type="submit" id="submitbtn">Upload</button>
+				</form>
+
+				<div id="myuploads-section">
+					<label>Your Uploads</label>
+					<div id="myuploads"><span class="sub">Loading...</span></div>
+				</div>
+			</div>
+
+			<div id="result"></div>
+		</div>
+
+		<script>
+			var API_URL = {{.APIURL}};
+			var ticket = null;
+			var mySteamID = null;
+
+			function signIn() {
+				window.location = API_URL + "/auth/steamlogin?return=" + encodeURIComponent(window.location.pathname);
+			}
+
+			function showResult(ok, text) {
+				var el = document.getElementById("result");
+				el.className = ok ? "ok" : "error";
+				el.textContent = text;
+			}
+
+			function escapeHtml(s) {
+				var div = document.createElement("div");
+				div.textContent = s;
+				return div.innerHTML;
+			}
+
+			function loadMyUploads() {
+				var container = document.getElementById("myuploads");
+				container.innerHTML = "<span class=\"sub\">Loading...</span>";
+
+				fetch(API_URL + "/packages/list?author=" + encodeURIComponent(mySteamID) + "&type=addon&count=100&sort=newest")
+					.then(function (r) { return r.json(); })
+					.then(function (list) {
+						if (!list || !list.length) {
+							container.innerHTML = "<span class=\"sub\">You haven't uploaded anything yet.</span>";
+							return;
+						}
+
+						container.innerHTML = "";
+						list.forEach(function (pkg) {
+							var row = document.createElement("div");
+							row.className = "uploaditem";
+
+							var info = document.createElement("div");
+							info.innerHTML = "<div>" + escapeHtml(pkg.name) + "</div><div class=\"meta\">#" + pkg.id + "</div>";
+
+							var btn = document.createElement("button");
+							btn.className = "deletebtn";
+							btn.textContent = "Delete";
+							btn.onclick = (function (id, name) {
+								return function () { deleteUpload(id, name); };
+							})(pkg.id, pkg.name);
+
+							row.appendChild(info);
+							row.appendChild(btn);
+							container.appendChild(row);
+						});
+					})
+					.catch(function () {
+						container.innerHTML = "<span class=\"sub\">Couldn't load your uploads.</span>";
+					});
+			}
+
+			function deleteUpload(id, name) {
+				if (!confirm("Delete \"" + name + "\"? This can't be undone.")) {
+					return;
+				}
+
+				fetch(API_URL + "/addons/delete?id=" + encodeURIComponent(id), {
+					method: "POST",
+					headers: {"Ticket": ticket}
+				})
+					.then(function (r) { return r.json(); })
+					.then(function (body) {
+						if (!body.ok) {
+							alert("Failed to delete: " + body.error);
+							return;
+						}
+
+						loadMyUploads();
+					})
+					.catch(function (err) {
+						alert("Failed to delete: " + err);
+					});
+			}
+
+			(function init() {
+				var hash = window.location.hash.replace(/^#/, "");
+				var params = new URLSearchParams(hash);
+				ticket = params.get("ticket");
+
+				if (!ticket) {
+					return;
+				}
+
+				// don't leave the ticket sitting in the visible URL/history
+				history.replaceState(null, "", window.location.pathname + window.location.search);
+
+				fetch(API_URL + "/auth/getid?ticket=" + encodeURIComponent(ticket))
+					.then(function (r) { if (!r.ok) throw new Error("session expired"); return r.text(); })
+					.then(function (steamid) {
+						mySteamID = steamid;
+						document.getElementById("loggedout").style.display = "none";
+						document.getElementById("loggedin").style.display = "block";
+						document.getElementById("signedin").textContent = "Signed in as SteamID " + steamid;
+						loadMyUploads();
+					})
+					.catch(function () {
+						ticket = null;
+					});
+			})();
+
+			document.getElementById("uploadform").addEventListener("submit", function (e) {
+				e.preventDefault();
+
+				if (!ticket) {
+					showResult(false, "Not signed in.");
+					return;
+				}
+
+				var fileInput = document.getElementById("file");
+				if (!fileInput.files.length) {
+					showResult(false, "Choose a .zip file first.");
+					return;
+				}
+
+				var fd = new FormData();
+				fd.append("name", document.getElementById("name").value);
+				fd.append("description", document.getElementById("description").value);
+				fd.append("file", fileInput.files[0]);
+
+				var btn = document.getElementById("submitbtn");
+				btn.disabled = true;
+				btn.textContent = "Uploading...";
+				showResult(true, "Uploading, this can take a moment for larger addons...");
+
+				fetch(API_URL + "/addons/upload", {
+					method: "POST",
+					headers: {"Ticket": ticket},
+					body: fd
+				})
+					.then(function (r) { return r.json().then(function (body) { return {status: r.status, body: body}; }); })
+					.then(function (res) {
+						btn.disabled = false;
+						btn.textContent = "Upload";
+
+						if (!res.body.ok) {
+							var msg = "Failed: " + res.body.error;
+							if (res.body.rejected && res.body.rejected.length) {
+								msg += "\n\nSkipped files:\n- " + res.body.rejected.slice(0, 25).join("\n- ");
+							}
+							showResult(false, msg);
+							return;
+						}
+
+						var msg = "Uploaded \"" + res.body.name + "\" as package #" + res.body.id + "\n" +
+							res.body.accepted.length + " file(s) included.";
+						if (res.body.rejected && res.body.rejected.length) {
+							msg += "\n\n" + res.body.rejected.length + " file(s) were skipped:\n- " + res.body.rejected.slice(0, 25).join("\n- ");
+						}
+						showResult(true, msg);
+						loadMyUploads();
+					})
+					.catch(function (err) {
+						btn.disabled = false;
+						btn.textContent = "Upload";
+						showResult(false, "Upload failed: " + err);
+					});
+			});
+		</script>
+	</body>
+</html>
