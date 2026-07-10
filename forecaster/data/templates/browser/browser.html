@@ -1,81 +1,81 @@
 <!doctype html>
 <html class="{{if .InGame}}gm13{{end}}">
-	<head>
-		{{template "head" .}}
-	</head>
-	<body>
-		<div class="header" id="header_primary">
-			{{template "categorybar" .}}
-			{{template "searchbar" .}}
-			{{if not .HomePage}}
-				{{template "pagenav" .}}
-			{{end}}
-		</div>
-		<div class="header" id="header_secondary">
-			{{template "sortbar" .}}
-			<div class="subbar">
-				{{if .InGame}}
-					<a id="settings" onclick="cloudbox.OpenSettings()"><span class="navicon"></span><span translate="options">Options</span></a>
-				{{end}}
-			</div>
-		</div>
-		
-		<div class="clouds" id="topclouds"></div>
-		<div class="metabox" data-itemid="">
-			<div class="clouds" id="bottomclouds"></div>
-			<div class="metabox-target"></div>
-		</div>
-		<script>
-			var animationTime = new Date();
-			document.querySelector("#topclouds").style.animationDelay = animationTimeString(animationTime, 10);
-			document.querySelector("#bottomclouds").style.animationDelay = animationTimeString(animationTime, 5);
-		</script>
-		
-		{{if .HomePage}}
-			<div class="content">
-				{{if eq .PageType "home"}}
-					{{template "home" .}}
-					{{template "mouseinfo" .}}
-				{{else if eq .PageType "news"}}
-					{{template "news" .}}
-				{{else if eq .PageType "info"}}
-					{{template "info" .}}
-				{{else if eq .PageType "search"}}
-					<div style="text-align: center;">
-						<h2 style="margin-top: 0; margin-bottom: 6px;">View <i>{{.Search}}</i> <span class="case" translate="search.results">results</span></h2>
-						<div class="pillbox" style="display: inline-block; width: auto; font-size: 20px;">
-							{{template "searchlinks" .}}
-						</div>
-					</div>
-				{{else if eq .PageType "zoo"}}
-					{{template "zoo" .}}
-				{{else if eq .PageType "error"}}
-					<div class="pillbox">
-						<h2>Page Not Found (404)</h2>
-						<p>URL does not exist <span style="font-size: 22px;">&#x1F641;</span></p>
-					</div>
-				{{end}}
-			</div>
-		{{else}}
-			<div class="content" style="text-align:center;">
-				{{if eq .Category "savemap"}}
-					<div class="pillbox thin">Saves are not available in Garry's Mod 13. They are available in Garry's Mod 12</a>, and new saves can be uploaded directly in-game. <a class="textlink" href="https://flatgrass.net/toybox.html#gm12" target="_blank">How to use Toybox with Garry's Mod 12 <span class="linkicon external"></span></a></div>
-				{{else if eq .Category "addon"}}
-					<div class="pillbox thin">Addons are self-uploaded by the community - no old GMod install needed. <a class="textlink" href="{{.UploadURL}}" target="_blank">Upload your own addon <span class="linkicon external"></span></a></div>
-				{{end}}
-				{{if ne .Search ""}}{{template "searchresultsheading" .}}{{end}}
-				<div {{if ne .Search ""}}id="searchresults"{{end}} class="itemflow">{{range .Packages}}
-					{{template "item" .}}
-				{{end}}</div>
-				{{if ne .Search ""}}
-					<div class="pillbox" style="display: block; width: auto; margin-top: 12px; font-size: 14px; background-color: transparent;">
-						<h4>See search results in other categories</h4>
-						{{template "searchlinks" .}}
-					</div>
-				{{end}}
-				{{template "mouseinfo" .}}
-			</div>
-		{{end}}
-		<dialog id="alert"><h3></h3><p></p><button class="form_btn" onclick="document.querySelector('#alert').close();" autofocus><span translate="dialog.ok">OK</span></button></dialog>
-	</body>
+        <head>
+                {{template "head" .}}
+        </head>
+        <body>
+                <div class="header" id="header_primary">
+                        {{template "categorybar" .}}
+                        {{template "searchbar" .}}
+                        {{if not .HomePage}}
+                                {{template "pagenav" .}}
+                        {{end}}
+                </div>
+                <div class="header" id="header_secondary">
+                        {{template "sortbar" .}}
+                        <div class="subbar">
+                                {{if .InGame}}
+                                        <a id="settings" onclick="cloudbox.OpenSettings()"><span class="navicon"></span><span translate="options">Options</span></a>
+                                {{end}}
+                        </div>
+                </div>
+                
+                <div class="clouds" id="topclouds"></div>
+                <div class="metabox" data-itemid="">
+                        <div class="clouds" id="bottomclouds"></div>
+                        <div class="metabox-target"></div>
+                </div>
+                <script>
+                        var animationTime = new Date();
+                        document.querySelector("#topclouds").style.animationDelay = animationTimeString(animationTime, 10);
+                        document.querySelector("#bottomclouds").style.animationDelay = animationTimeString(animationTime, 5);
+                </script>
+                
+                {{if .HomePage}}
+                        <div class="content">
+                                {{if eq .PageType "home"}}
+                                        {{template "home" .}}
+                                        {{template "mouseinfo" .}}
+                                {{else if eq .PageType "news"}}
+                                        {{template "news" .}}
+                                {{else if eq .PageType "info"}}
+                                        {{template "info" .}}
+                                {{else if eq .PageType "search"}}
+                                        <div style="text-align: center;">
+                                                <h2 style="margin-top: 0; margin-bottom: 6px;">View <i>{{.Search}}</i> <span class="case" translate="search.results">results</span></h2>
+                                                <div class="pillbox" style="display: inline-block; width: auto; font-size: 20px;">
+                                                        {{template "searchlinks" .}}
+                                                </div>
+                                        </div>
+                                {{else if eq .PageType "zoo"}}
+                                        {{template "zoo" .}}
+                                {{else if eq .PageType "error"}}
+                                        <div class="pillbox">
+                                                <h2>Page Not Found (404)</h2>
+                                                <p>URL does not exist <span style="font-size: 22px;">&#x1F641;</span></p>
+                                        </div>
+                                {{end}}
+                        </div>
+                {{else}}
+                        <div class="content" style="text-align:center;">
+                                {{if eq .Category "savemap"}}
+                                        <div class="pillbox thin">Saves are not available in Garry's Mod 13. They are available in Garry's Mod 12</a>, and new saves can be uploaded directly in-game. <a class="textlink" href="https://flatgrass.net/toybox.html#gm12" target="_blank">How to use Toybox with Garry's Mod 12 <span class="linkicon external"></span></a></div>
+                                {{else if eq .Category "addon"}}
+                                        <div class="pillbox thin">Addons are self-uploaded by the community - no old GMod install needed. {{if .InGame}}<a class="textlink" onclick="cloudbox.UploadAddon()" href="javascript:void(0)">Upload your own addon <span class="linkicon external"></span></a>{{else}}<a class="textlink" href="{{.UploadURL}}" target="_blank">Upload your own addon <span class="linkicon external"></span></a>{{end}}</div>
+                                {{end}}
+                                {{if ne .Search ""}}{{template "searchresultsheading" .}}{{end}}
+                                <div {{if ne .Search ""}}id="searchresults"{{end}} class="itemflow">{{range .Packages}}
+                                        {{template "item" .}}
+                                {{end}}</div>
+                                {{if ne .Search ""}}
+                                        <div class="pillbox" style="display: block; width: auto; margin-top: 12px; font-size: 14px; background-color: transparent;">
+                                                <h4>See search results in other categories</h4>
+                                                {{template "searchlinks" .}}
+                                        </div>
+                                {{end}}
+                                {{template "mouseinfo" .}}
+                        </div>
+                {{end}}
+                <dialog id="alert"><h3></h3><p></p><button class="form_btn" onclick="document.querySelector('#alert').close();" autofocus><span translate="dialog.ok">OK</span></button></dialog>
+        </body>
 </html>

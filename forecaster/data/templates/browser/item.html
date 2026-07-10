@@ -1,5 +1,5 @@
 {{define "item"}}
-<div class="item" data-itemid="{{.ID}}" style="--thumb: url('//img.cl0udb0x.com/{{.ID}}_thumb_128.png');"> <!-- class="item isfav" when the item is favourite, when feature is available-->
+<div class="item thumb-{{.Type}}" data-itemid="{{.ID}}" data-type="{{.Type}}" data-author="{{.Author}}" data-name="{{.Name}}" style="--thumb: url('{{if .ThumbURL}}{{.ThumbURL}}{{else}}//img.cl0udb0x.com/{{.ID}}_thumb_128.png{{end}}');"> <!-- class="item isfav" when the item is favourite, when feature is available-->
 	<a onclick="cloudbox.GetPackage({{.Type}}, {{.ID}}, {{.Revision}})">
 		<div class="thumb">
 			<!-- <div class="favstatus"></div> -->
@@ -13,9 +13,17 @@
 		{{if not (or (eq .Type "map") (eq .Type "savemap") (eq .Type "addon"))}}
 			<a class="ico-code" href="/view/{{.ID}}/code" target="_blank">View Source Code</a>
 		{{end}}
+		{{if eq .Type "addon"}}
+			<!-- Only revealed by cloudbox.js for addons the local player owns
+			     (data-author matches their SteamID). The actual deletion is
+			     routed through the authenticated upload page so it reuses the
+			     existing, proven Steam-OpenID ownership check - see the
+			     cloudbox.DeleteAddon Lua bridge. -->
+			<a class="ico-block delete-link" style="display:none;">Delete</a>
+		{{end}}
 	</dialog>
 	<div class="metabox-template" hidden>
-		<div class="meta-col thumb" style="--thumb: url('//img.cl0udb0x.com/{{.ID}}_thumb_128.png');">
+		<div class="meta-col thumb" style="--thumb: url('{{if .ThumbURL}}{{.ThumbURL}}{{else}}//img.cl0udb0x.com/{{.ID}}_thumb_128.png{{end}}');">
 		</div>
 		<div class="meta-col meta-info">
 			<div class="meta-row meta-name">{{.Name}}</div>
@@ -40,7 +48,7 @@
 				{{else}}
 					<img src="/assets/rustmb/gmod.png">
 				{{end}}
-				
+
 				{{if lt .ID 200000}}
 					<div>Uploaded to Toybox, by</div>
 				{{else}}

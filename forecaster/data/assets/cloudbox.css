@@ -1,6 +1,6 @@
 /* Core */
 html, body {background-color: transparent; height: 100%; overflow: hidden;}
-html.gm13 {-webkit-mask-box-image: url("/assets/darth/mask-4.png") 4;}	
+html.gm13 {-webkit-mask-box-image: url("/assets/darth/mask-4.png") 4;}  
 
 body {margin: 0px; font-family: Helvetica; color: #333; display: flex; flex-direction: column; accent-color: #4096EE;}
 a {color: #333; text-decoration: none;}
@@ -97,7 +97,7 @@ dialog.contextmenu a.ico-flag {--ico: url('/assets/rustmb/combined/unused/banana
 #bottomclouds {background-image: url("/svg/clouds?fill=FFFFFF"); animation-duration: 5s; --animation-duration: 5; opacity: 0.9;}
 html.gm13 .clouds {animation-timing-function: steps( calc( 30 * var(--animation-duration) ) );} /* throttle to 30fps ingame, to reduce panel redraws */
 @media (prefers-reduced-motion: reduce) {
-	.clouds {animation: none !important;}
+        .clouds {animation: none !important;}
 }
 html.reduced-motion .clouds {animation: none !important;}
 
@@ -187,6 +187,13 @@ a.textlink:hover .linkicon {background-position: right;}
 
 .thumb {width: 100%; height: 100%; border: 2px solid #595959; border-radius: 4px; background-position: center; background-image: var(--thumb, none), url("/assets/rustmb/missing.svg"); background-size: cover;}
 
+/* Self-uploaded addons always have a stored icon now (the upload handler
+   stores a user-provided / zip-embedded / generated one), so the primary
+   --thumb image will load. But if it ever 404s (e.g. an addon from before this
+   change, or a transient S3 hiccup), fall back to the Cloudbox logo instead of
+   the generic "missing" question-mark - recognizably an icon, not an error. */
+.item.thumb-addon .thumb {background-image: var(--thumb, none), url("/assets/rustmb/combined/cloudbox.png");}
+
 
 .itemflow {display: flex; flex-wrap: wrap; column-gap: 4.45px; row-gap: 7px; justify-content: center; margin-top: 16px; margin-bottom: 2px;}
 .itemflow.singleline {overflow: hidden; flex-wrap: nowrap; justify-content: flex-start; margin-top: 0px;}
@@ -210,7 +217,7 @@ a.textlink:hover .linkicon {background-position: right;}
 .metabox-target {margin-left: 15px; margin-right: 15px; margin-top: -10px; display: flex; gap: 10px; height: 125px; position: relative; transition: opacity 0.2s 0s linear; opacity: 1;}
 .metabox:not(.active) .metabox-target {opacity: 0; transition-delay: 0.1s;}
 @media (prefers-reduced-motion: reduce) {
-	.metabox, .metabox-target {transition-timing-function: steps(2, jump-none) !important;}
+        .metabox, .metabox-target {transition-timing-function: steps(2, jump-none) !important;}
 }
 html.reduced-motion .metabox, html.reduced-motion .metabox-target {transition-timing-function: steps(2, jump-none) !important;}
 
@@ -275,8 +282,8 @@ html.reduced-motion .metabox, html.reduced-motion .metabox-target {transition-ti
 .mouseinfo.touch .action {margin-left: 0; margin-right: 0; margin-top: 2px;}
 
 @media (hover: none) {
-	html:not(.gm13) .mouseinfo.mouse {display: none;}
-	html:not(.gm13) .mouseinfo.touch {display: flex;}
+        html:not(.gm13) .mouseinfo.mouse {display: none;}
+        html:not(.gm13) .mouseinfo.touch {display: flex;}
 }
 
 
@@ -302,54 +309,54 @@ html.reduced-motion .metabox, html.reduced-motion .metabox-target {transition-ti
 
 
 @media (max-width: 859px) {
-	
-	.content {padding-left: 2px; padding-right: 2px;}
-	
-	.metabox-target {margin-left: 5px; margin-right: 5px;}
-	
-	.pillbox {max-width: calc(100% - 12px);}
-	
-	.CodeMirror {width: 99% !important;}
-	
+        
+        .content {padding-left: 2px; padding-right: 2px;}
+        
+        .metabox-target {margin-left: 5px; margin-right: 5px;}
+        
+        .pillbox {max-width: calc(100% - 12px);}
+        
+        .CodeMirror {width: 99% !important;}
+        
 }
 
 @media (max-width: 775px) {
-	
-	#header_primary {flex-wrap: wrap;}
-	
-	html:not(#viewer) #header_primary > .navbar:first-child {width: 100%;}
-	
-	.header .search {padding-left: 8px; padding-right: 8px; padding-top: 8px; padding-bottom: 16px;}
-	.header .search:not(:last-child) {padding-right: 0px;}
-	
-	.header .search button {top: 11px; right: 11px;}
-	.header .search:not(:last-child) button {right: 3px;}
-	
-	.header .search + .navbar a {margin-top: 4px;}
-	
-	
-	#viewer #header_primary {flex-direction: column; gap: 3px; padding-top: 5px;}
-	#back_history {position: absolute; top: 0; left: -8px;}
-	.navbar.itemname, .navbar.authorname {text-align: center; overflow-wrap: anywhere; overflow: hidden;}
-	html.gm13 .navbar.itemname, html.gm13 .navbar.authorname {margin-left: 60px;}
-	.navbar.itemname > div, .navbar.authorname > div {font-size: 0.75em; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;}
-	
+        
+        #header_primary {flex-wrap: wrap;}
+        
+        html:not(#viewer) #header_primary > .navbar:first-child {width: 100%;}
+        
+        .header .search {padding-left: 8px; padding-right: 8px; padding-top: 8px; padding-bottom: 16px;}
+        .header .search:not(:last-child) {padding-right: 0px;}
+        
+        .header .search button {top: 11px; right: 11px;}
+        .header .search:not(:last-child) button {right: 3px;}
+        
+        .header .search + .navbar a {margin-top: 4px;}
+        
+        
+        #viewer #header_primary {flex-direction: column; gap: 3px; padding-top: 5px;}
+        #back_history {position: absolute; top: 0; left: -8px;}
+        .navbar.itemname, .navbar.authorname {text-align: center; overflow-wrap: anywhere; overflow: hidden;}
+        html.gm13 .navbar.itemname, html.gm13 .navbar.authorname {margin-left: 60px;}
+        .navbar.itemname > div, .navbar.authorname > div {font-size: 0.75em; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;}
+        
 }
 
 @media (max-width: 499px) {
-	html:not(#viewer) .header .navbar:first-child {zoom: 0.85;}
-	
-	.header .search {padding-bottom: 6px;}
-	
-	.header .search + .navbar {zoom: 0.8;}
-	
-	.header .subbar {zoom: 0.85;}
+        html:not(#viewer) .header .navbar:first-child {zoom: 0.85;}
+        
+        .header .search {padding-bottom: 6px;}
+        
+        .header .search + .navbar {zoom: 0.8;}
+        
+        .header .subbar {zoom: 0.85;}
 }
 
 
 @media (max-height: 599px) {
-	/* just gives the page a tiny bit more height to work with when the height is limited */
-	#topclouds {height: 30px;}
-	.content {padding-bottom: 8px;}
-	.metabox:not(.active) {transform: translateY(160px);}
+        /* just gives the page a tiny bit more height to work with when the height is limited */
+        #topclouds {height: 30px;}
+        .content {padding-bottom: 8px;}
+        .metabox:not(.active) {transform: translateY(160px);}
 }
