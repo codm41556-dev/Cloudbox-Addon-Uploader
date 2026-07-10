@@ -1,0 +1,1 @@
+.\setup-windows.ps1 -DbPassword "test1234" -LanIP "10.0.0.31"
