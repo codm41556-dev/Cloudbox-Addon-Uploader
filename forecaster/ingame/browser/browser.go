@@ -1,19 +1,19 @@
 /*
-	forecaster - cloudbox frontend
-	Copyright (C) 2024  patapancakes <patapancakes@pagefault.games>
+   forecaster - cloudbox frontend
+   Copyright (C) 2024  patapancakes <patapancakes@pagefault.games>
 
-	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU Affero General Public License as published by
-	the Free Software Foundation, either version 3 of the License, or
-	(at your option) any later version.
+   This program is free software: you can redistribute it and/or modify
+   it under the terms of the GNU Affero General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
 
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU Affero General Public License for more details.
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU Affero General Public License for more details.
 
-	You should have received a copy of the GNU Affero General Public License
-	along with this program.  If not, see <http://www.gnu.org/licenses/>.
+   You should have received a copy of the GNU Affero General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 package browser
@@ -34,15 +34,15 @@ import (
 )
 
 type Browser struct {
-	InGame     bool
-	HomePage   bool
-	Search     string
-	Sort       string
-	Category   string
-	Packages   []common.Package
-	PrevLink   string
-	NextLink   string
-	UploadURL  string
+	InGame    bool
+	HomePage  bool
+	Search    string
+	Sort      string
+	Category  string
+	Packages  []common.Package
+	PrevLink  string
+	NextLink  string
+	UploadURL string
 }
 
 const itemsPerPage = 50
@@ -62,7 +62,7 @@ var (
 
 func Handle(w http.ResponseWriter, r *http.Request) {
 	var err error
-	
+
 	category, ok := categories[r.PathValue("category")]
 	if !ok {
 		http.Error(w, "unknown category", http.StatusNotFound)
@@ -107,6 +107,22 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Resolve each item's thumbnail URL. Recovered Toybox content keeps using
+	// the public CDN (img.cl0udb0x.com) exactly as before - changing that
+	// would break icons for every existing entity/weapon/map. Self-uploaded
+	// addons, on the other hand, point at the backend's own /content/thumb
+	// endpoint, which serves the icon the upload handler stored in S3 - that
+	// way addons show real icons in self-hosted/local setups with no CDN, and
+	// the generic "missing" question-mark placeholder never shows for them.
+	apiURL := os.Getenv("API_URL")
+	for i := range list {
+		if list[i].Type == "addon" && apiURL != "" {
+			list[i].ThumbURL = apiURL + "/content/thumb?id=" + strconv.Itoa(list[i].ID)
+		} else {
+			list[i].ThumbURL = "//img.cl0udb0x.com/" + strconv.Itoa(list[i].ID) + "_thumb_128.png"
+		}
+	}
+
 	prev := fmt.Sprintf("?page=%d", page-1)
 	if page <= 1 {
 		prev = "#"
@@ -125,14 +141,14 @@ func Handle(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = t.Execute(w, Browser{
-		InGame:     ingame,
-		Search:     r.URL.Query().Get("search"),
-		Sort:       sort,
-		Category:   category,
-		Packages:   list,
-		PrevLink:   prev,
-		NextLink:   next,
-		UploadURL:  os.Getenv("API_URL") + "/addons/upload",
+		InGame:    ingame,
+		Search:    r.URL.Query().Get("search"),
+		Sort:      sort,
+		Category:  category,
+		Packages:  list,
+		PrevLink:  prev,
+		NextLink:  next,
+		UploadURL: os.Getenv("API_URL") + "/addons/upload",
 	})
 	if err != nil {
 		utils.WriteError(w, r, fmt.Sprintf("failed to execute template: %s", err))
