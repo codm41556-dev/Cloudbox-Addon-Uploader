@@ -1,5 +1,5 @@
 # Cloudbox: self-serve addon uploads
-
+(please bear in mind Claude has wrote this, i have not, but i can confirm i did test some stuff, but i am currently on working on trying to test weapons, addons etc)
 This is a set of changes on top of the three Cloudbox repos
 (`cloudbox13` the client addon, `cloudbox` the backend, `forecaster` the
 browser UI) that adds a **self-serve "upload an addon" feature**: sign in
