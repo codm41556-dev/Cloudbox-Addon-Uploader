@@ -172,6 +172,7 @@
 			<p class="sub">Zip your addon folder (containing any of <code>lua/</code>, <code>materials/</code>, <code>models/</code>, <code>sound/</code>, <code>particles/</code>, <code>gamemodes/</code>) and upload it here. It becomes a normal Cloudbox package that anyone running the Cloudbox client can download and mount in-game - autorun scripts, entities, weapons and effects get loaded automatically.</p>
 
 			<div id="loggedout">
+				<p id="deleteprompt" class="sub" style="display:none; color:#a33;">You are about to delete an addon - sign in through Steam to confirm.</p>
 				<button class="steambtn" onclick="signIn()">Sign in through Steam</button>
 			</div>
 
@@ -190,6 +191,11 @@
 					<div class="row">
 						<label for="file">Addon .zip</label>
 						<input type="file" id="file" name="file" accept=".zip" required>
+					</div>
+					<div class="row">
+						<label for="thumb">Icon (optional)</label>
+						<input type="file" id="thumb" name="thumb" accept="image/png,image/jpeg">
+						<p class="sub">PNG or JPG, shown next to your addon in the spawn menu. If you skip this, an icon is auto-generated, or <code>thumb.png</code> / <code>icon.png</code> / <code>logo.png</code> inside the zip is used if present.</p>
 					</div>
 					<button class="uploadbtn" type="submit" id="submitbtn">Upload</button>
 				</form>
@@ -261,8 +267,8 @@
 					});
 			}
 
-			function deleteUpload(id, name) {
-				if (!confirm("Delete \"" + name + "\"? This can't be undone.")) {
+			function deleteUpload(id, name, skipConfirm) {
+				if (!skipConfirm && !confirm("Delete \"" + name + "\"? This can't be undone.")) {
 					return;
 				}
 
@@ -277,6 +283,7 @@
 							return;
 						}
 
+						if (skipConfirm) { showResult(true, "Deleted addon #" + id + ". You can close this tab."); }
 						loadMyUploads();
 					})
 					.catch(function (err) {
@@ -289,7 +296,19 @@
 				var params = new URLSearchParams(hash);
 				ticket = params.get("ticket");
 
+				// A delete can be requested from the in-game right-click menu as
+				// #delete=<id>. Stash it so it survives the Steam OpenID redirect
+				// (which only returns #ticket=...), then process it once signed in.
+				var deleteId = params.get("delete");
+				if (deleteId) {
+					sessionStorage.setItem("pendingDelete", deleteId);
+				}
+				
 				if (!ticket) {
+					if (sessionStorage.getItem("pendingDelete")) {
+						var p = document.getElementById("deleteprompt");
+						if (p) { p.style.display = "block"; }
+					}
 					return;
 				}
 
@@ -304,6 +323,15 @@
 						document.getElementById("loggedin").style.display = "block";
 						document.getElementById("signedin").textContent = "Signed in as SteamID " + steamid;
 						loadMyUploads();
+						
+						// If sent here from in-game to delete a specific addon,
+						// do it now (intent was already confirmed in-game, so the
+						// JS confirm is skipped).
+						var pending = sessionStorage.getItem("pendingDelete");
+						if (pending) {
+							sessionStorage.removeItem("pendingDelete");
+							deleteUpload(pending, "#" + pending, true);
+						}
 					})
 					.catch(function () {
 						ticket = null;
@@ -328,6 +356,11 @@
 				fd.append("name", document.getElementById("name").value);
 				fd.append("description", document.getElementById("description").value);
 				fd.append("file", fileInput.files[0]);
+
+				var thumbInput = document.getElementById("thumb");
+				if (thumbInput.files.length) {
+					fd.append("thumb", thumbInput.files[0]);
+				}
 
 				var btn = document.getElementById("submitbtn");
 				btn.disabled = true;
