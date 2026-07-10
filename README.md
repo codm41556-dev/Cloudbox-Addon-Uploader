@@ -180,9 +180,9 @@ clients automatically). Then use the in-game spawn menu's Cloudbox tab
 as normal - `RequestCloudboxDownload` doesn't care that the package type
 is new.
 
-## What was actually tested vs. just reviewed
+## What was actually tested vs. just reviewed and added
 
-**Ran and verified working**, end-to-end, including checking the exact
+**Ran and verified working and added**, end-to-end, including checking the exact
 bytes returned:
 - `schema.sql` against real MariaDB, including every exact query string
   from `db/*.go` (not just similar ones)
