@@ -1,0 +1,9 @@
+{{define "news"}}
+<div class="pillbox">
+	<h2>What's New?</h2>
+	
+	{{range .News}}
+		{{template "newsitem" .}}
+	{{end}}
+</div>
+{{end}}
